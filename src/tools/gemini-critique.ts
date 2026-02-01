@@ -34,7 +34,7 @@ export const geminiCritiqueTool = {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-pro',  // 최신 Gemini 모델
+      model: 'gemini-3-pro-preview',  // Gemini 3 Pro Preview
       generationConfig: {
         responseMimeType: 'application/json',
         temperature: 0.3,
