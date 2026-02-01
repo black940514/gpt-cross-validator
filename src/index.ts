@@ -5,15 +5,15 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { OAuthManager } from './auth/oauth-manager.js';
-import { gptCritiqueTool } from './tools/gpt-critique.js';
-import { gptReviewTool } from './tools/gpt-review.js';
+import { ApiKeyManager } from './auth/api-key-manager.js';
+import { geminiCritiqueTool } from './tools/gemini-critique.js';
+import { geminiReviewTool } from './tools/gemini-review.js';
 
-const oauthManager = new OAuthManager();
+const apiKeyManager = new ApiKeyManager();
 
 const server = new Server(
   {
-    name: 'gpt-cross-validator',
+    name: 'gemini-cross-validator',
     version: '1.0.0',
   },
   {
@@ -27,8 +27,8 @@ const server = new Server(
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     {
-      name: gptCritiqueTool.name,
-      description: gptCritiqueTool.description,
+      name: geminiCritiqueTool.name,
+      description: geminiCritiqueTool.description,
       inputSchema: {
         type: 'object',
         properties: {
@@ -39,8 +39,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       },
     },
     {
-      name: gptReviewTool.name,
-      description: gptReviewTool.description,
+      name: geminiReviewTool.name,
+      description: geminiReviewTool.description,
       inputSchema: {
         type: 'object',
         properties: {
@@ -60,29 +60,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
-    if (name === gptCritiqueTool.name) {
-      const input = gptCritiqueTool.inputSchema.parse(args);
-      const result = await gptCritiqueTool.execute(input, oauthManager);
+    if (name === geminiCritiqueTool.name) {
+      const input = geminiCritiqueTool.inputSchema.parse(args);
+      const result = await geminiCritiqueTool.execute(input, apiKeyManager);
       return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(result, null, 2),
-          },
-        ],
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       };
     }
 
-    if (name === gptReviewTool.name) {
-      const input = gptReviewTool.inputSchema.parse(args);
-      const result = await gptReviewTool.execute(input, oauthManager);
+    if (name === geminiReviewTool.name) {
+      const input = geminiReviewTool.inputSchema.parse(args);
+      const result = await geminiReviewTool.execute(input, apiKeyManager);
       return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(result, null, 2),
-          },
-        ],
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       };
     }
 
@@ -90,12 +80,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return {
-      content: [
-        {
-          type: 'text',
-          text: `Error: ${message}`,
-        },
-      ],
+      content: [{ type: 'text', text: `Error: ${message}` }],
       isError: true,
     };
   }
@@ -105,7 +90,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('GPT Cross Validator MCP Server running on stdio');
+  console.error('Gemini Cross Validator MCP Server running on stdio');
 }
 
 main().catch(console.error);
