@@ -40,7 +40,7 @@ export const geminiReviewTool = {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-1.5-pro',  // Claude Opus급 성능
       generationConfig: {
         responseMimeType: 'application/json',
         temperature: 0.3,
